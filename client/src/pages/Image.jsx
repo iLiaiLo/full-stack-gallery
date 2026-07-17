@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-// import { URL } from "../assets/URL";
 import { useParams, NavLink } from "react-router-dom";
 
 const URL = import.meta.env.VITE_URL;
