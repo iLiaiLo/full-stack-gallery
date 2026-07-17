@@ -1,5 +1,4 @@
 import { useState, useRef, useContext } from "react";
-// import { URL } from "../assets/URL";
 import { useNavigate } from "react-router-dom";
 import userContext from "../assets/context";
 import SelectGenres from "./genres/SelectGenres";
