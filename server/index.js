@@ -1,63 +1,48 @@
-const express=require("express");
-const mongoose=require("mongoose");
-const cors=require("cors");
-const multer=require("multer");
-const PictureModel=require("./model/PictureModel");
-require("dotenv").config();
-const app=express();
+import express from "express";
+import mongoose from "mongoose";
+import cors from "cors";
+import PictureModel from "./model/PictureModel.js";
+import path from "path";
+import { fileURLToPath } from "url";
+import dotenv from "dotenv";
 
-const PORT=process.env.PORT;
-const URI=process.env.URI;
+import getImages from "./controllers/getImages.js";
+import uploadImage from "./middlewares/uploadImage.js";
+import addImage from "./controllers/addImage.js";
+import getSingleImage from "./controllers/getSingleImage.js";
+import filterImages from "./controllers/filterImages.js";
+dotenv.config();
 
-app.use(express.json())
+const app = express();
 
-app.use(cors({
-    origin:'http://localhost:5173',
-    methods:["GET","POST","PUT","PATCH","DELETE"],
-    allowedHeaders:"Content-type"
-}))
+const PORT = process.env.PORT;
+const MONGO_URI = process.env.MONGO_URI;
 
-app.use(express.static("Public"))
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-const storage=multer.diskStorage({
-    destination:(req,file,cb)=>{
-        cb(null,'Public/Pictures')
-    },
-    filename:(req,file,cb)=>{
-        const regex=/\s+/g
-        cb(null,`${Date.now()}_${file.originalname.replace(regex,"_")}`)
-    }
-})
-const upload=multer({storage})
+app.use(express.json());
 
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    methods: ["GET", "POST"],
+    allowedHeaders: "Content-type",
+  }),
+);
 
-app.get('/display_images',async (req,res)=>{
-    try {
-        const pictureData=await PictureModel.find();
-        res.status(200).json(pictureData);
-    } catch (error) {
-        res.status(500).json({msg:error});
-    }
-})
+app.use("/public", express.static(path.join(__dirname, "public")));
 
+app.get("/display_images", getImages);
+app.get("/display_images/filter", filterImages);
 
-app.post('/upload_image',upload.single("file"),async (req,res)=>{
-    try {
-        const genre=req.body.genre;
-        const img_url=req.file.filename;
-        const newPicture=new PictureModel({img_url:img_url,genre:genre});
-        await newPicture.save();
+app.get("/display_images/:id", getSingleImage);
 
-        res.status(201).json({img_url:img_url,genre:genre});
-        
-    } catch (error) {
-        console.log(error);
-        res.status(500).json({msg:error});
-    }
-})
+app.post("/upload_image", uploadImage, addImage);
 
-mongoose.connect(URI).then(()=>{
-    console.log("connected to database")
-    app.listen(PORT,()=>console.log(`server running on port ${PORT}`))
-}
-).catch(e=>console.log(e))
+mongoose
+  .connect(MONGO_URI)
+  .then(() => {
+    console.log("connected to database");
+    app.listen(PORT, () => console.log(`server running on port ${PORT}`));
+  })
+  .catch((e) => console.log(e));
