@@ -1,9 +1,8 @@
-const mongoose=require("mongoose");
+import mongoose from "mongoose";
+const PictureSchema = new mongoose.Schema({
+  img_url: { type: String, required: true, trim: true },
+  genre: { type: String, required: true, trim: true },
+});
 
-const PictureSchema=new mongoose.Schema({
-    img_url:{type:String},
-    genre:{type:String}
-})
-
-const PictureModel=new mongoose.model("picture_collection",PictureSchema);
-module.exports=PictureModel;
+const PictureModel = new mongoose.model("pictures", PictureSchema);
+export default PictureModel;
