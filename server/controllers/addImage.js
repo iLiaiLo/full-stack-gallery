@@ -10,7 +10,7 @@ const addImage = async (req, res) => {
     const img_url = dest + filename;
     const newImg = await PictureModel.create({ img_url, genre });
 
-    const { _id, img_url, genre } = newImg;
+    const { _id } = newImg;
 
     return res.status(201).json({ _id, img_url, genre });
   } catch (error) {
